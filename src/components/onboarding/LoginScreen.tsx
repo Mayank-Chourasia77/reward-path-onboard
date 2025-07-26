@@ -65,41 +65,68 @@ export const LoginScreen = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    const newErrors: FormErrors = {};
-    
-    if (activeTab === "login") {
-      newErrors.email = validateEmail(formData.email);
-      newErrors.password = validatePassword(formData.password);
+const handleSubmit = async () => {
+  const newErrors: FormErrors = {};
+
+  if (activeTab === "login") {
+    newErrors.email = validateEmail(formData.email);
+    newErrors.password = validatePassword(formData.password);
+  } else {
+    newErrors.phone = validatePhone(formData.phone);
+    if (!formData.otp) newErrors.otp = "OTP is required";
+  }
+
+  setErrors(newErrors);
+
+  if (Object.values(newErrors).some(Boolean)) return;
+
+  setIsLoading(true);
+
+  try {
+    if (activeTab === "signup") {
+      // 🧠 Real backend call to create user
+      const response = await fetch("http://localhost:4000/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email || null,
+          phone: formData.phone,
+          passwordHash: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Signup failed");
+
+      localStorage.setItem("userId", data.id); // Save for profile step
+
+      toast({
+        title: "Account Created",
+        description: "Your account was created successfully!",
+      });
+
+      navigate("/profile");
     } else {
-      newErrors.phone = validatePhone(formData.phone);
-      if (!formData.otp) newErrors.otp = "OTP is required";
+      // 🧪 Keep login logic mocked (no backend needed)
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      toast({
+        title: "Login Successful",
+        description: "You're now logged in",
+      });
+
+      navigate("/profile");
     }
-    
-    setErrors(newErrors);
-    
-    if (Object.values(newErrors).some(Boolean)) return;
-    
-    setIsLoading(true);
-    
-    // Mock authentication delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsLoading(false);
-    
+  } catch (error: any) {
     toast({
-      title: "Success!",
-      description: activeTab === "login" ? "Logged in successfully" : "Account created successfully",
+      title: "Error",
+      description: error.message || "Something went wrong",
+      variant: "destructive",
     });
-    
-    // Store user data for next screen
-    localStorage.setItem('user', JSON.stringify({ 
-      email: formData.email || `+1${formData.phone}`,
-      method: activeTab 
-    }));
-    
-    navigate("/profile");
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const isFormValid = () => {
     if (activeTab === "login") {

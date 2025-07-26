@@ -1,73 +1,203 @@
-# Welcome to your Lovable project
+# 💳 MaxxMai Card – Onboarding Application
 
-## Project info
+A full-stack onboarding web application for MaxxMai Card, built using React, Tailwind CSS, Node.js (Express), Prisma, and NeonDB (PostgreSQL). It features a multi-step user onboarding process — from account creation to profile completion and consent approval — with all user data stored securely in a cloud database.
 
-**URL**: https://lovable.dev/projects/fbfe4da5-5c6e-4827-9189-cd64322fe05e
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- ✅ Phone + OTP based account creation (mocked flow)
+- ✅ Email + password login (alternate path)
+- ✅ Multi-step onboarding: Signup → Profile → Consent → Dashboard
+- ✅ Profile form to collect personal and financial details
+- ✅ Consent screen with checkbox agreement before completion
+- ✅ Backend with Node.js + Express + TypeScript
+- ✅ ORM via Prisma with Neon PostgreSQL
+- ✅ Client-side validation, error states, and loading feedback
+- ✅ LocalStorage used to pass minimal user context
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fbfe4da5-5c6e-4827-9189-cd64322fe05e) and start prompting.
+## 🛠️ Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+| Layer      | Technology               |
+|------------|---------------------------|
+| Frontend   | React + Vite              |
+| Styling    | Tailwind CSS              |
+| Backend    | Node.js + Express + TypeScript |
+| ORM        | Prisma                    |
+| Database   | Neon PostgreSQL (Cloud)   |
+| Auth       | Mocked OTP flow           |
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧭 Application Flow
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Login / Create Account**
+   - Users can log in using email/password or sign up via phone number + OTP (OTP mocked).
+   - Data is validated client-side.
+   - Backend stores account in `User` table.
 
-Follow these steps:
+2. **Profile Form**
+   - Collects: Full Name, Date of Birth, City, Income Range, and Bank.
+   - Data is submitted to `/api/profile` and stored in the `Profile` table linked to the user.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Consent Screen**
+   - User must agree to Terms and Privacy Policy.
+   - Navigation blocked until agreement is checked.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **Dashboard**
+   - Confirmation screen after successful onboarding.
+   - Can be extended to show personalized data from the database.
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## 📦 Database Schema
+
+Using Prisma ORM connected to Neon PostgreSQL.
+
+### 🧑 `User` Table
+
+| Field        | Type          |
+|--------------|---------------|
+| `id`         | String (UUID) |
+| `email`      | String?       |
+| `phone`      | String?       |
+| `passwordHash` | String?     |
+
+### 🧾 `Profile` Table
+
+| Field                | Type          |
+|---------------------|---------------|
+| `id`                | String (UUID) |
+| `userId`            | String (FK to User) |
+| `fullName`          | String        |
+| `dob`               | Date          |
+| `city`              | String        |
+| `incomeRangeMonthly`| String        |
+| `primaryBank`       | String        |
+| `consentAccepted`   | Boolean       |
+
+---
+
+## ⚙️ Setup Instructions (Local)
+
+### 1. Clone Repository
+
+```bash
+git clone <your-repo-url>
+cd maxxmaicard-app
 ```
 
-**Edit a file directly in GitHub**
+### 2. Install Dependencies
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Backend
+cd backend
+npm install
 
-**Use GitHub Codespaces**
+# Frontend
+cd ../frontend
+npm install
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 3. Configure Environment
 
-## What technologies are used for this project?
+Create a `.env` file in `/backend`:
 
-This project is built with:
+```env
+DATABASE_URL="postgresql://<your-neon-connection-string>"
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+You can get this from your Neon dashboard > project > connection string.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/fbfe4da5-5c6e-4827-9189-cd64322fe05e) and click on Share -> Publish.
+### 4. Apply DB Migrations
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+cd backend
+npx prisma migrate dev --name init
+```
 
-Yes, you can!
+To preview data:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```bash
+npx prisma studio
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+
+### 5. Run the App
+
+#### Start Backend
+
+```bash
+cd backend
+npx ts-node src/index.ts
+# Server runs at http://localhost:4000
+```
+
+#### Start Frontend
+
+```bash
+cd frontend
+npm run dev
+# Opens http://localhost:3000
+```
+
+---
+
+## 🧪 Testing the Flow
+
+1. Go to `http://localhost:3000`
+2. Click "Create Account" tab
+3. Enter 10-digit phone number and any 6-digit OTP (mocked)
+4. Fill out profile form
+5. Agree to terms in Consent screen
+6. Arrive at Dashboard
+
+✅ Check Neon DB to verify new user and profile entries.
+
+---
+
+## 📂 Project Structure
+
+```
+├── backend
+│   ├── src
+│   │   ├── index.ts        # Express server
+│   │   └── routes          # API endpoints
+│   ├── prisma
+│   │   └── schema.prisma   # DB schema
+│   └── .env                # Environment config
+└── frontend
+    └── src
+        ├── components
+        ├── pages
+        └── App.tsx / main.tsx
+```
+
+---
+
+## 🎥 Demo Video
+
+🎬 Record a short 3–5 minute video demonstrating:
+- Account creation
+- Profile submission
+- Consent checkbox
+- Dashboard
+- Neon DB entries via Prisma Studio
+
+(Optional) Upload to Loom or YouTube (unlisted) and share the link.
+
+---
+
+
+## 🙌 Notes
+
+- OTP verification is mocked — any 6-digit code is accepted.
+- Backend uses mock delay (`setTimeout`) to simulate network latency.
+- Styling is minimal but clean — can be extended.
+- Uses localStorage to persist user session state between steps.
+
