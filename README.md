@@ -61,9 +61,9 @@ Using Prisma ORM connected to Neon PostgreSQL.
 | Field        | Type          |
 |--------------|---------------|
 | `id`         | String (UUID) |
-| `email`      | String?       |
-| `phone`      | String?       |
-| `passwordHash` | String?     |
+| `email`      | String        |
+| `phone`      | String        |
+| `passwordHash` | String      |
 
 ### 🧾 `Profile` Table
 
